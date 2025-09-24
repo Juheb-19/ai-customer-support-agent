@@ -8,5 +8,4 @@ Main components:
 - **Next.js** admin dashboard starter for viewing conversations, assigning tickets, and editing responses.
 - **Sample bot connectors** (placeholders) for WhatsApp, Telegram, and Email.
 
-This is a starter skeleton designed to be pushed to your GitHub repo and iterated on.
 
