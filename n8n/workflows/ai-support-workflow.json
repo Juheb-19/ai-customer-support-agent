@@ -1,0 +1,130 @@
+{
+  "name": "AI Customer Support - Starter",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "incoming-message",
+        "options": {}
+      },
+      "name": "Inbound Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        250
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse incoming payload, normalize channel (whatsapp/telegram/email), create ticket in Supabase (HTTP Request node handles that), then call LLM\n// Placeholder: Pass message text to LLM node\nreturn items;"
+      },
+      "name": "Parse & Prepare",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        500,
+        250
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.LLM_API_URL}}",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\"model\":\"gpt-4o-mini\",\"messages\":[{\"role\":\"system\",\"content\":\"You are an AI customer support assistant. Be clear and concise.\"},{\"role\":\"user\",\"content\":{{$json[\"text\"]}}}], \"max_tokens\":800}"
+      },
+      "name": "Call LLM (HTTP Request)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        750,
+        250
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Format LLM response for storage and outbound send\nreturn items;"
+      },
+      "name": "Format Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        250
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$json[\"outbound_api_url\"]}}",
+        "method": "POST",
+        "jsonParameters": true,
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "to",
+              "value": "={{$json[\"to\"]}}"
+            },
+            {
+              "name": "message",
+              "value": "={{$json[\"reply_text\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Send Reply (HTTP Request)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1250,
+        250
+      ]
+    }
+  ],
+  "connections": {
+    "Inbound Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse & Prepare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Prepare": {
+      "main": [
+        [
+          {
+            "node": "Call LLM (HTTP Request)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call LLM (HTTP Request)": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Send Reply (HTTP Request)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

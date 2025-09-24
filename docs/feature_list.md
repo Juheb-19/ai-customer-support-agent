@@ -1,0 +1,6 @@
+- Multi-channel ingestion (WhatsApp, Telegram, Email)
+- AI-powered responses with LLM (OpenAI/Ollama/local)
+- Ticketing system with agent assignment
+- Supabase-backed storage and audit logs
+- n8n workflows for automation and integrations
+- Next.js admin dashboard skeleton
